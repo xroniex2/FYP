@@ -22,6 +22,9 @@ def load_model():
 
 
 model = load_model()
+model_package = load_model()
+model = model_package["model"]
+expected_columns = model_package["columns"]
 
 # === Load crop list (cleaned) ===
 @st.cache_data
@@ -102,13 +105,26 @@ elif area > 10000:
 
 # Predict button
 if st.button("Predict Production"):
+    # One-hot encode the selected crop
     crop_dummy = pd.get_dummies(pd.Series(selected_crop), prefix="Crop")
-    dummy_template = pd.get_dummies(crop_info["Crop"], prefix="Crop")
-    crop_vector = pd.DataFrame(columns=dummy_template.columns).fillna(0)
-    for col in crop_dummy.columns:
-        if col in crop_vector.columns:
-            crop_vector.loc[0, col] = 1
 
-    input_features = np.concatenate((np.array([[N, P, K, pH, rainfall, temperature, area]]), crop_vector.to_numpy()), axis=1)
-    prediction = model.predict(input_features)
-    st.success(f"🌾 Estimated Crop Production: **{prediction[0]:,.2f} tons**")
+    # Create empty input aligned to expected columns
+    input_df = pd.DataFrame(columns=expected_columns).fillna(0)
+
+    # Fill in user values
+    input_df.at[0, "N"] = N
+    input_df.at[0, "P"] = P
+    input_df.at[0, "K"] = K
+    input_df.at[0, "pH"] = pH
+    input_df.at[0, "rainfall"] = rainfall
+    input_df.at[0, "temperature"] = temperature
+    input_df.at[0, "Area_in_hectares"] = area
+
+    # Set the one-hot crop column to 1 if it exists
+    for col in crop_dummy.columns:
+        if col in input_df.columns:
+            input_df.at[0, col] = 1
+
+    # Predict
+    prediction = model.predict(input_df)[0]
+    st.success(f"🌾 Estimated Crop Production: **{prediction:,.2f} tons**")
