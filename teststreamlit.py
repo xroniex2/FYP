@@ -15,9 +15,10 @@ import unicodedata
 def load_model():
     model_path = "random_forest_model.joblib"
     if not os.path.exists(model_path):
-        url = "https://www.dropbox.com/scl/fi/vjgsne7w8lervmmara28v/random_forest_model.joblib?rlkey=fvkhih8ban3dnnmazb1vzhe6q&st=hk7c7hpn&dl=1"
+        url = "https://www.dropbox.com/scl/fi/4bnty5g7s2ix3iw7p06t0/random_forest_model.joblib?rlkey=o8n7pzrj1g65cznolynqfkgad&st=off6994f&dl=1"
         urllib.request.urlretrieve(url, model_path)
-    return joblib.load(model_path)
+    return joblib.load(model_path)  # returns dict with 'model' and 'columns'
+
 
 
 model = load_model()
