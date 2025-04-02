@@ -15,10 +15,11 @@ import unicodedata
 def load_model():
     model_path = "random_forest_model.pkl"
     if not os.path.exists(model_path):
-        url = "https://drive.google.com/uc?export=download&id=1iE2enOk6xOkXFoFVQSBqR8jU9J_F8EL-"
+        url = "https://www.dropbox.com/scl/fi/hrwatbn7w3sgmjwgls3kn/random_forest_model.pkl?rlkey=28idvg89u9tt4np7emkcu24cz&st=v7hvg361&dl=1"
         urllib.request.urlretrieve(url, model_path)
     with open(model_path, "rb") as f:
         return pickle.load(f)
+
 
 model = load_model()
 
