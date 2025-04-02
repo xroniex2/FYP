@@ -5,7 +5,7 @@ st.set_page_config(page_title="Crop Production Predictor", page_icon="🌾")
 
 import numpy as np
 import pandas as pd
-import pickle
+import joblib
 import urllib.request
 import os
 import unicodedata
@@ -13,12 +13,11 @@ import unicodedata
 # === Load model from Google Drive ===
 @st.cache_resource
 def load_model():
-    model_path = "random_forest_model.pkl"
+    model_path = "random_forest_model.joblib"
     if not os.path.exists(model_path):
-        url = "https://www.dropbox.com/scl/fi/hrwatbn7w3sgmjwgls3kn/random_forest_model.pkl?rlkey=28idvg89u9tt4np7emkcu24cz&st=v7hvg361&dl=1"
+        url = "https://www.dropbox.com/scl/fi/vjgsne7w8lervmmara28v/random_forest_model.joblib?rlkey=fvkhih8ban3dnnmazb1vzhe6q&st=hk7c7hpn&dl=1"
         urllib.request.urlretrieve(url, model_path)
-    with open(model_path, "rb") as f:
-        return pickle.load(f)
+    return joblib.load(model_path)
 
 
 model = load_model()
