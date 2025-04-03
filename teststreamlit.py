@@ -1,8 +1,4 @@
 import streamlit as st
-
-# ✅ Must be the first Streamlit command
-st.set_page_config(page_title="Crop Yield Predictor", page_icon="🌾")
-
 import numpy as np
 import pandas as pd
 import joblib
@@ -10,7 +6,9 @@ import urllib.request
 import os
 import unicodedata
 
-# === Load model from Google Drive ===
+
+st.set_page_config(page_title="Crop Yield Predictor", page_icon="🌾")
+
 @st.cache_resource
 def load_model():
     model_path = "random_forest_model.joblib"
@@ -146,7 +144,7 @@ if st.button("Predict Crop Yield"):
     issues = is_input_valid(N, P, K, pH, rainfall, temperature, area)
 
     if issues:
-        st.error("❌ The input values are not realistic for crop production:")
+        st.error("❌ One or more values are not realistic for crop production:")
         for i in issues:
             st.markdown(f"- {i}")
     else:
