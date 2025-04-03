@@ -51,10 +51,26 @@ crop_list = crop_info["Crop"].tolist()
 st.title("🌾 Crop Yield Predictor")
 st.markdown("Enter the details below to estimate the expected **crop yield in tons**.")
 
-# Crop selection
-selected_crop = st.selectbox("Select a Crop", crop_list)
-crop_type = crop_info[crop_info["Crop"] == selected_crop]["Crop_Type"].values[0]
-st.caption(f"📌 Crop Type: **{crop_type.capitalize()}**")
+# Crop Type and Crop selection logic
+st.subheader("🌾 Crop Selection")
+
+# Get unique crop types
+crop_types = sorted(crop_info["Crop_Type"].unique())
+
+# Choose how to filter
+selection_mode = st.radio("How would you like to select a crop?", ["Select Crop Type First", "Select Crop First"])
+
+if selection_mode == "Select Crop Type First":
+    selected_type = st.selectbox("Select Crop Type", crop_types)
+    filtered_crops = crop_info[crop_info["Crop_Type"] == selected_type]["Crop"].tolist()
+    selected_crop = st.selectbox("Select Crop", filtered_crops)
+    st.caption(f"📌 Selected Crop Type: **{selected_type.capitalize()}**")
+
+else:  # Select Crop First
+    selected_crop = st.selectbox("Select Crop", crop_list)
+    selected_type = crop_info[crop_info["Crop"] == selected_crop]["Crop_Type"].values[0]
+    st.caption(f"📌 Detected Crop Type: **{selected_type.capitalize()}**")
+
 
 st.subheader("🌿 Soil & Climate Conditions")
 
