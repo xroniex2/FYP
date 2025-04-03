@@ -74,6 +74,30 @@ else:  # Select Crop First
 
 st.subheader("🌿 Soil & Climate Conditions")
 
+def is_input_valid(N, P, K, pH, rainfall, temperature, area):
+    issues = []
+
+    if temperature < 10:
+        issues.append("🌡️ Temperature is too low for any crop to grow.")
+    elif temperature > 45:
+        issues.append("🌡️ Temperature is extremely high and may kill crops.")
+
+    if pH < 4.5 or pH > 9:
+        issues.append("🧪 Soil pH is beyond survivable range for most crops.")
+
+    if rainfall < 50:
+        issues.append("☔ Rainfall is far too low — drought likely.")
+    elif rainfall > 2500:
+        issues.append("☔ Rainfall is excessive — likely to cause flooding.")
+
+    if N < 10 or P < 5 or K < 5:
+        issues.append("🧬 One or more nutrients (N, P, K) are critically low.")
+
+    if area < 0.1:
+        issues.append("📏 Area is too small to produce measurable yield.")
+
+    return issues
+
 # Input fields with validations
 N = st.number_input("Nitrogen (N) [Recommended: 20–150 kg/ha]", min_value=0, max_value=200, value=70)
 if N < 20:
@@ -119,19 +143,26 @@ elif area > 10000:
 
 # Predict button
 if st.button("Predict Crop Yield"):
-    crop_dummy = pd.get_dummies(pd.Series(selected_crop), prefix="Crop")
-    dummy_template = pd.get_dummies(crop_info["Crop"], prefix="Crop")
-    crop_vector = pd.DataFrame(columns=dummy_template.columns).fillna(0)
-    
-    for col in crop_dummy.columns:
-        if col in crop_vector.columns:
-            crop_vector.loc[0, col] = 1
+    issues = is_input_valid(N, P, K, pH, rainfall, temperature, area)
 
-    input_features = np.concatenate((
-        np.array([[N, P, K, pH, rainfall, temperature, area]]),
-        crop_vector.to_numpy()
-    ), axis=1)
+    if issues:
+        st.error("❌ The input values are not realistic for crop production:")
+        for i in issues:
+            st.markdown(f"- {i}")
+    else:
+        # [Keep your existing prediction code below]
+        crop_dummy = pd.get_dummies(pd.Series(selected_crop), prefix="Crop")
+        dummy_template = pd.get_dummies(crop_info["Crop"], prefix="Crop")
+        crop_vector = pd.DataFrame(columns=dummy_template.columns).fillna(0)
+        
+        for col in crop_dummy.columns:
+            if col in crop_vector.columns:
+                crop_vector.loc[0, col] = 1
 
-    prediction = model.predict(input_features)
-    st.success(f"🌾 Estimated Crop Yield: **{prediction[0]:,.2f} tons**")
+        input_features = np.concatenate((
+            np.array([[N, P, K, pH, rainfall, temperature, area]]),
+            crop_vector.to_numpy()
+        ), axis=1)
 
+        prediction = model.predict(input_features)
+        st.success(f"🌾 Estimated Crop Yield: **{prediction[0]:,.2f} tons**")
