@@ -22,8 +22,7 @@ def load_model():
 
 
 model = load_model()
-model_package = load_model()
-expected_columns = model_package["columns"]
+
 
 # === Load crop list (cleaned) ===
 @st.cache_data
