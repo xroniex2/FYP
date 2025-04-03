@@ -1,7 +1,7 @@
 import streamlit as st
 
 # ✅ Must be the first Streamlit command
-st.set_page_config(page_title="Crop Production Predictor", page_icon="🌾")
+st.set_page_config(page_title="Crop Yield Predictor", page_icon="🌾")
 
 import numpy as np
 import pandas as pd
@@ -48,8 +48,8 @@ crop_info = load_crop_info()
 crop_list = crop_info["Crop"].tolist()
 
 # === UI Layout ===
-st.title("🌾 Crop Production Predictor")
-st.markdown("Enter the details below to estimate the expected **crop production in tons**.")
+st.title("🌾 Crop Yield Predictor")
+st.markdown("Enter the details below to estimate the expected **crop yield in tons**.")
 
 # Crop selection
 selected_crop = st.selectbox("Select a Crop", crop_list)
@@ -102,27 +102,20 @@ elif area > 10000:
     st.info("ℹ️ Large-scale operation detected. Consider precision agriculture tools.")
 
 # Predict button
-if st.button("Predict Production"):
-    # One-hot encode the selected crop
+if st.button("Predict Crop Yield"):
     crop_dummy = pd.get_dummies(pd.Series(selected_crop), prefix="Crop")
-
-    # Create empty input aligned to expected columns
-    input_df = pd.DataFrame(columns=expected_columns).fillna(0)
-
-    # Fill in user values
-    input_df.at[0, "N"] = N
-    input_df.at[0, "P"] = P
-    input_df.at[0, "K"] = K
-    input_df.at[0, "pH"] = pH
-    input_df.at[0, "rainfall"] = rainfall
-    input_df.at[0, "temperature"] = temperature
-    input_df.at[0, "Area_in_hectares"] = area
-
-    # Set the one-hot crop column to 1 if it exists
+    dummy_template = pd.get_dummies(crop_info["Crop"], prefix="Crop")
+    crop_vector = pd.DataFrame(columns=dummy_template.columns).fillna(0)
+    
     for col in crop_dummy.columns:
-        if col in input_df.columns:
-            input_df.at[0, col] = 1
+        if col in crop_vector.columns:
+            crop_vector.loc[0, col] = 1
 
-    # Predict
-    prediction = model.predict(input_df)[0]
-    st.success(f"🌾 Estimated Crop Production: **{prediction:,.2f} tons**")
+    input_features = np.concatenate((
+        np.array([[N, P, K, pH, rainfall, temperature, area]]),
+        crop_vector.to_numpy()
+    ), axis=1)
+
+    prediction = model.predict(input_features)
+    st.success(f"🌾 Estimated Crop Yield: **{prediction[0]:,.2f} tons**")
+
