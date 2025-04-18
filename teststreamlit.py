@@ -25,7 +25,7 @@ model = load_model()
 # === Load cleaned crop info ===
 @st.cache_data
 def load_crop_info():
-    df = pd.read_csv("Crop_production_cleaned.csv")
+    df = pd.read_csv("Crop_production.csv")
     df = df.drop_duplicates(subset=["Crop"]).sort_values("Crop").reset_index(drop=True)
     return df[["Crop", "Crop_Type"]]
 
